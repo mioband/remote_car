@@ -1,0 +1,9 @@
+car_motors_control.c:30:13:init_motor_1	8	static
+car_motors_control.c:46:13:init_motor_2	8	static
+car_motors_control.c:62:13:init_motor_3	8	static
+car_motors_control.c:78:13:init_motor_4	8	static
+car_motors_control.c:94:6:init_motors	8	static
+car_motors_control.c:102:13:set_motor_dir_pwm	24	static
+car_motors_control.c:123:6:move_motor	16	static
+car_motors_control.c:141:6:stop_motor	16	static
+car_motors_control.c:159:6:stop_all_motors	8	static
