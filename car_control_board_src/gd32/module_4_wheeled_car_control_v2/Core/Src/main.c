@@ -26,7 +26,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define TEST_DIR 1
+#define PWM_MAX (htim2.Init.Period * 0.88)
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -39,18 +39,21 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-uint8_t test_buf[2];
+volatile uint8_t uart_flag = 0;
+uint8_t uart_buf[4];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART3_UART_Init(void);
@@ -60,136 +63,42 @@ static void MX_USART3_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-void encoders_reading(GPIO_TypeDef *prt_1, uint16_t pin_1, GPIO_TypeDef *prt_2, uint16_t pin_2) {
-	if (HAL_GPIO_ReadPin(prt_1, pin_1)) {
-		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 1);
-	} else {
-		HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 0);
-	}
-
-	if (HAL_GPIO_ReadPin(prt_2, pin_2)) {
-		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, 1);
-	} else {
-		HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, 0);
-	}
-}
-
-
-void test_motor(uint8_t dc_num, uint32_t testing_time,  uint8_t test_direction) {
-	switch (dc_num) {
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-			move_motor(dc_num, test_direction, 100);
-			break;
-		default:
-			stop_all_motors();
-			break;
-	}
-
-	if (testing_time < HAL_MAX_DELAY) testing_time += (uint32_t)(uwTickFreq);
-	uint32_t tickstart = HAL_GetTick();
-
-	while ((HAL_GetTick() - tickstart) < testing_time) {
-		switch (dc_num) {
-			case 1:
-				encoders_reading(ENC_1_GPIO_Port, ENC_1_Pin, ENC_2_GPIO_Port, ENC_2_Pin);
-				break;
-			case 2:
-				encoders_reading(ENC_3_GPIO_Port, ENC_3_Pin, ENC_4_GPIO_Port, ENC_4_Pin);
-				break;
-			case 3:
-				encoders_reading(ENC_5_GPIO_Port, ENC_5_Pin, ENC_6_GPIO_Port, ENC_6_Pin);
-				break;
-			case 4:
-				encoders_reading(ENC_7_GPIO_Port, ENC_7_Pin, ENC_8_GPIO_Port, ENC_8_Pin);
-				break;
-		}
-	}
-}
-
-
-void test_motors_and_encoders(void) {
-	test_motor(1, 5000, 0);
-	stop_motor(1);
-	HAL_Delay(500);
-	test_motor(1, 5000, 1);
-	stop_motor(1);
-	HAL_Delay(500);
-
-	test_motor(2, 5000, 0);
-	stop_motor(2);
-	HAL_Delay(500);
-	test_motor(2, 5000, 1);
-	stop_motor(2);
-	HAL_Delay(500);
-
-	test_motor(3, 5000, 0);
-	stop_motor(3);
-	HAL_Delay(500);
-	test_motor(3, 5000, 1);
-	stop_motor(3);
-	HAL_Delay(500);
-
-	test_motor(4, 5000, 0);
-	stop_motor(4);
-	HAL_Delay(500);
-	test_motor(4, 5000, 1);
-	stop_motor(4);
-	HAL_Delay(500);
-}
-
-
-void d_out_test(void) {
-	HAL_GPIO_WritePin(DIG_OUT_1_GPIO_Port, DIG_OUT_1_Pin, 1);
-	HAL_GPIO_WritePin(DIG_OUT_2_GPIO_Port, DIG_OUT_2_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_3_GPIO_Port, DIG_OUT_3_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_4_GPIO_Port, DIG_OUT_4_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_5_GPIO_Port, DIG_OUT_5_Pin, 0);
-	HAL_Delay(5000);
-	HAL_GPIO_WritePin(DIG_OUT_1_GPIO_Port, DIG_OUT_1_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_2_GPIO_Port, DIG_OUT_2_Pin, 1);
-	HAL_GPIO_WritePin(DIG_OUT_3_GPIO_Port, DIG_OUT_3_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_4_GPIO_Port, DIG_OUT_4_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_5_GPIO_Port, DIG_OUT_5_Pin, 0);
-	HAL_Delay(5000);
-	HAL_GPIO_WritePin(DIG_OUT_1_GPIO_Port, DIG_OUT_1_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_2_GPIO_Port, DIG_OUT_2_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_3_GPIO_Port, DIG_OUT_3_Pin, 1);
-	HAL_GPIO_WritePin(DIG_OUT_4_GPIO_Port, DIG_OUT_4_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_5_GPIO_Port, DIG_OUT_5_Pin, 0);
-	HAL_Delay(5000);
-	HAL_GPIO_WritePin(DIG_OUT_1_GPIO_Port, DIG_OUT_1_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_2_GPIO_Port, DIG_OUT_2_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_3_GPIO_Port, DIG_OUT_3_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_4_GPIO_Port, DIG_OUT_4_Pin, 1);
-	HAL_GPIO_WritePin(DIG_OUT_5_GPIO_Port, DIG_OUT_5_Pin, 0);
-	HAL_Delay(5000);
-	HAL_GPIO_WritePin(DIG_OUT_1_GPIO_Port, DIG_OUT_1_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_2_GPIO_Port, DIG_OUT_2_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_3_GPIO_Port, DIG_OUT_3_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_4_GPIO_Port, DIG_OUT_4_Pin, 0);
-	HAL_GPIO_WritePin(DIG_OUT_5_GPIO_Port, DIG_OUT_5_Pin, 1);
-	HAL_Delay(5000);
-}
-
-
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (test_buf[0] == 'L') {
-		switch (test_buf[1]) {
-			case '0':
-				HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 1);
-				HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, 0);
+	uart_flag = 1;
+	HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf));
+}
+
+
+void command_accomplishing(void) {
+	if (uart_buf[0] == 'B') {
+		switch (uart_buf[1]) {
+			case 'l':
+				move_motor(1, uart_buf[2], uart_buf[3] * PWM_MAX / 255);
 				break;
-			case '1':
-				HAL_GPIO_WritePin(LED_1_GPIO_Port, LED_1_Pin, 0);
-				HAL_GPIO_WritePin(LED_2_GPIO_Port, LED_2_Pin, 1);
+			case 'r':
+				move_motor(2, uart_buf[2], uart_buf[3] * PWM_MAX / 255);
 				break;
 		}
+	} else if (uart_buf[0] == 'T') {
+		switch (uart_buf[1]) {
+			case 'l':
+				move_motor(3, uart_buf[2], uart_buf[3] * PWM_MAX / 255);
+				break;
+			case 'r':
+				move_motor(4, uart_buf[2], uart_buf[3] * PWM_MAX / 255);
+				break;
+		}
+	} else if (uart_buf[0] == 'R') {
+		HAL_GPIO_WritePin(ROTATING_GPIO_Port, ROTATING_Pin, 1);
+		HAL_Delay(1000);
+		HAL_GPIO_WritePin(ROTATING_GPIO_Port, ROTATING_Pin, 0);
+	} else if (uart_buf[0] == 'S') {
+		stop_all_motors();
+	} else if (uart_buf[0] == 'Z') {
+		TIM1 -> CCR1 = 10;
+		HAL_Delay(2000);
+		TIM1 -> CCR1 = 0;
 	}
-
-	HAL_UART_Receive_IT(&huart3, (uint8_t *) test_buf, sizeof(test_buf));
 }
 /* USER CODE END 0 */
 
@@ -221,21 +130,24 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  init_motors();
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  move_motor(1, 1, 900);
-  HAL_UART_Receive_IT(&huart3, (uint8_t *) test_buf, sizeof(test_buf));
+  init_motors();
+  HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+  HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf));
   while (1) {
-
-//	  test_motors_and_encoders();
-//	  d_out_test();
+	  if (uart_flag) {
+		  uart_flag = 0;
+		  command_accomplishing();
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -276,6 +188,71 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 7;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 999;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
+  sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+  sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
+  sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
+  sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
+  if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+  HAL_TIM_MspPostInit(&htim1);
+
 }
 
 /**
@@ -446,11 +423,10 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, DIG_AIN_2_Pin|DIG_AIN_1_Pin|DIG_BIN_1_Pin|DIG_BIN_2_Pin
-                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin|LED_2_Pin|LED_1_Pin
-                          |DIG_OUT_5_Pin, GPIO_PIN_RESET);
+                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, DIG_OUT_4_Pin|DIG_OUT_3_Pin|DIG_OUT_2_Pin|DIG_OUT_1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(ROTATING_GPIO_Port, ROTATING_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : DIG_BIN_4_Pin DIG_BIN_3_Pin */
   GPIO_InitStruct.Pin = DIG_BIN_4_Pin|DIG_BIN_3_Pin;
@@ -460,34 +436,30 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : DIG_AIN_2_Pin DIG_AIN_1_Pin DIG_BIN_1_Pin DIG_BIN_2_Pin
-                           DIG_AIN_4_Pin DIG_AIN_3_Pin LED_2_Pin LED_1_Pin
-                           DIG_OUT_5_Pin */
+                           DIG_AIN_4_Pin DIG_AIN_3_Pin */
   GPIO_InitStruct.Pin = DIG_AIN_2_Pin|DIG_AIN_1_Pin|DIG_BIN_1_Pin|DIG_BIN_2_Pin
-                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin|LED_2_Pin|LED_1_Pin
-                          |DIG_OUT_5_Pin;
+                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : DIG_OUT_4_Pin DIG_OUT_3_Pin DIG_OUT_2_Pin DIG_OUT_1_Pin */
-  GPIO_InitStruct.Pin = DIG_OUT_4_Pin|DIG_OUT_3_Pin|DIG_OUT_2_Pin|DIG_OUT_1_Pin;
+  /*Configure GPIO pin : ROTATING_Pin */
+  GPIO_InitStruct.Pin = ROTATING_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(ROTATING_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ENC_8_Pin ENC_7_Pin ENC_6_Pin */
-  GPIO_InitStruct.Pin = ENC_8_Pin|ENC_7_Pin|ENC_6_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : ENC_5_Pin ENC_4_Pin ENC_3_Pin ENC_2_Pin
-                           ENC_1_Pin */
-  GPIO_InitStruct.Pin = ENC_5_Pin|ENC_4_Pin|ENC_3_Pin|ENC_2_Pin
-                          |ENC_1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pins : PB3 PB5 PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_3|GPIO_PIN_5|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 

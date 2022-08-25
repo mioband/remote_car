@@ -75,36 +75,8 @@ void Error_Handler(void);
 #define DIG_AIN_4_GPIO_Port GPIOA
 #define DIG_AIN_3_Pin GPIO_PIN_7
 #define DIG_AIN_3_GPIO_Port GPIOA
-#define DIG_OUT_4_Pin GPIO_PIN_12
-#define DIG_OUT_4_GPIO_Port GPIOB
-#define DIG_OUT_3_Pin GPIO_PIN_13
-#define DIG_OUT_3_GPIO_Port GPIOB
-#define DIG_OUT_2_Pin GPIO_PIN_14
-#define DIG_OUT_2_GPIO_Port GPIOB
-#define DIG_OUT_1_Pin GPIO_PIN_15
-#define DIG_OUT_1_GPIO_Port GPIOB
-#define ENC_8_Pin GPIO_PIN_8
-#define ENC_8_GPIO_Port GPIOA
-#define ENC_7_Pin GPIO_PIN_9
-#define ENC_7_GPIO_Port GPIOA
-#define LED_2_Pin GPIO_PIN_10
-#define LED_2_GPIO_Port GPIOA
-#define LED_1_Pin GPIO_PIN_11
-#define LED_1_GPIO_Port GPIOA
-#define DIG_OUT_5_Pin GPIO_PIN_12
-#define DIG_OUT_5_GPIO_Port GPIOA
-#define ENC_6_Pin GPIO_PIN_15
-#define ENC_6_GPIO_Port GPIOA
-#define ENC_5_Pin GPIO_PIN_3
-#define ENC_5_GPIO_Port GPIOB
-#define ENC_4_Pin GPIO_PIN_4
-#define ENC_4_GPIO_Port GPIOB
-#define ENC_3_Pin GPIO_PIN_5
-#define ENC_3_GPIO_Port GPIOB
-#define ENC_2_Pin GPIO_PIN_6
-#define ENC_2_GPIO_Port GPIOB
-#define ENC_1_Pin GPIO_PIN_7
-#define ENC_1_GPIO_Port GPIOB
+#define ROTATING_Pin GPIO_PIN_12
+#define ROTATING_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
