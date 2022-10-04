@@ -11,7 +11,7 @@ extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
 
-#define PWM_MAX (htim2.Init.Period * 0.88)
+#define PWM_MAX (htim2.Init.Period * 0.40)
 
 
 typedef struct {
@@ -28,15 +28,15 @@ motor_pins motor_1, motor_2, motor_3, motor_4;
 
 
 static void init_motor_1(void) {
-	motor_1.pin_dir_0 = DIG_AIN_1_Pin;
-	motor_1.pin_dir_0_port = DIG_AIN_1_GPIO_Port;
-	motor_1.pin_dir_1 = DIG_AIN_2_Pin;
-	motor_1.pin_dir_1_port = DIG_AIN_2_GPIO_Port;
+	motor_1.pin_dir_1 = DIG_AIN_1_Pin;
+	motor_1.pin_dir_1_port = DIG_AIN_1_GPIO_Port;
+	motor_1.pin_dir_0 = DIG_AIN_2_Pin;
+	motor_1.pin_dir_0_port = DIG_AIN_2_GPIO_Port;
 	motor_1.tim = &htim2;
 	motor_1.tim_ch = TIM_CHANNEL_3;
 
-	HAL_GPIO_WritePin(motor_1.pin_dir_0_port, motor_1.pin_dir_0, 0);
 	HAL_GPIO_WritePin(motor_1.pin_dir_1_port, motor_1.pin_dir_1, 0);
+	HAL_GPIO_WritePin(motor_1.pin_dir_0_port, motor_1.pin_dir_0, 0);
 
 	__HAL_TIM_SET_COMPARE(motor_1.tim, motor_1.tim_ch, 0);
 	HAL_TIM_PWM_Start(motor_1.tim, motor_1.tim_ch);
@@ -44,15 +44,15 @@ static void init_motor_1(void) {
 
 
 static void init_motor_2(void) {
-	motor_2.pin_dir_0 = DIG_BIN_1_Pin;
-	motor_2.pin_dir_0_port = DIG_BIN_1_GPIO_Port;
-	motor_2.pin_dir_1 = DIG_BIN_2_Pin;
-	motor_2.pin_dir_1_port = DIG_BIN_2_GPIO_Port;
+	motor_2.pin_dir_1 = DIG_BIN_1_Pin;
+	motor_2.pin_dir_1_port = DIG_BIN_1_GPIO_Port;
+	motor_2.pin_dir_0 = DIG_BIN_2_Pin;
+	motor_2.pin_dir_0_port = DIG_BIN_2_GPIO_Port;
 	motor_2.tim = &htim2;
 	motor_2.tim_ch = TIM_CHANNEL_4;
 
-	HAL_GPIO_WritePin(motor_2.pin_dir_0_port, motor_2.pin_dir_0, 0);
 	HAL_GPIO_WritePin(motor_2.pin_dir_1_port, motor_2.pin_dir_1, 0);
+	HAL_GPIO_WritePin(motor_2.pin_dir_0_port, motor_2.pin_dir_0, 0);
 
 	__HAL_TIM_SET_COMPARE(motor_2.tim, motor_2.tim_ch, 0);
 	HAL_TIM_PWM_Start(motor_2.tim, motor_2.tim_ch);
@@ -60,15 +60,19 @@ static void init_motor_2(void) {
 
 
 static void init_motor_3(void) {
-	motor_3.pin_dir_0 = DIG_AIN_3_Pin;
-	motor_3.pin_dir_0_port = DIG_AIN_3_GPIO_Port;
-	motor_3.pin_dir_1 = DIG_AIN_4_Pin;
-	motor_3.pin_dir_1_port = DIG_AIN_4_GPIO_Port;
+//	motor_3.pin_dir_0 = DIG_AIN_3_Pin;
+//	motor_3.pin_dir_0_port = DIG_AIN_3_GPIO_Port;
+//	motor_3.pin_dir_1 = DIG_AIN_4_Pin;
+//	motor_3.pin_dir_1_port = DIG_AIN_4_GPIO_Port;
+	motor_3.pin_dir_1 = DIG_AIN_3_Pin;
+	motor_3.pin_dir_1_port = DIG_AIN_3_GPIO_Port;
+	motor_3.pin_dir_0 = DIG_AIN_4_Pin;
+	motor_3.pin_dir_0_port = DIG_AIN_4_GPIO_Port;
 	motor_3.tim = &htim3;
 	motor_3.tim_ch = TIM_CHANNEL_3;
 
-	HAL_GPIO_WritePin(motor_3.pin_dir_0_port, motor_3.pin_dir_0, 0);
 	HAL_GPIO_WritePin(motor_3.pin_dir_1_port, motor_3.pin_dir_1, 0);
+	HAL_GPIO_WritePin(motor_3.pin_dir_0_port, motor_3.pin_dir_0, 0);
 
 	__HAL_TIM_SET_COMPARE(motor_3.tim, motor_3.tim_ch, 0);
 	HAL_TIM_PWM_Start(motor_3.tim, motor_3.tim_ch);
@@ -76,15 +80,19 @@ static void init_motor_3(void) {
 
 
 static void init_motor_4(void) {
-	motor_4.pin_dir_0 = DIG_BIN_3_Pin;
-	motor_4.pin_dir_0_port = DIG_BIN_3_GPIO_Port;
-	motor_4.pin_dir_1 = DIG_BIN_4_Pin;
-	motor_4.pin_dir_1_port = DIG_BIN_4_GPIO_Port;
+//	motor_4.pin_dir_0 = DIG_BIN_3_Pin;
+//	motor_4.pin_dir_0_port = DIG_BIN_3_GPIO_Port;
+//	motor_4.pin_dir_1 = DIG_BIN_4_Pin;
+//	motor_4.pin_dir_1_port = DIG_BIN_4_GPIO_Port;
+	motor_4.pin_dir_1 = DIG_BIN_3_Pin;
+	motor_4.pin_dir_1_port = DIG_BIN_3_GPIO_Port;
+	motor_4.pin_dir_0 = DIG_BIN_4_Pin;
+	motor_4.pin_dir_0_port = DIG_BIN_4_GPIO_Port;
 	motor_4.tim = &htim3;
 	motor_4.tim_ch = TIM_CHANNEL_4;
 
-	HAL_GPIO_WritePin(motor_4.pin_dir_0_port, motor_4.pin_dir_0, 0);
 	HAL_GPIO_WritePin(motor_4.pin_dir_1_port, motor_4.pin_dir_1, 0);
+	HAL_GPIO_WritePin(motor_4.pin_dir_0_port, motor_4.pin_dir_0, 0);
 
 	__HAL_TIM_SET_COMPARE(motor_4.tim, motor_4.tim_ch, 0);
 	HAL_TIM_PWM_Start(motor_4.tim, motor_4.tim_ch);
