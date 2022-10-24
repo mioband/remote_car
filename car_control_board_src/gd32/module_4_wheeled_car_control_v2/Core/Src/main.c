@@ -21,16 +21,17 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "car_motors_control.h"
+#include "car_motors_control.h" // library for controlling the motors
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define PWM_MAX (htim2.Init.Period * 0.88)
+#define PWM_MAX (htim2.Init.Period * 0.88) // limitation of input signal
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+/* variables for microseconds interval using */
 #define DWT_CONTROL *(volatile unsigned long *)0xE0001000
 #define SCB_DEMCR   *(volatile unsigned long *)0xE000EDFC
 /* USER CODE END PD */
@@ -47,9 +48,9 @@ TIM_HandleTypeDef htim3;
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-volatile uint8_t uart_flag = 0;
-volatile uint8_t shoot_flag = 0;
-uint8_t uart_buf[11];
+volatile uint8_t uart_flag = 0; // UART interrupt flag
+volatile uint8_t shoot_flag = 0; // flag of the shooting process
+uint8_t uart_buf[11]; // input UART buffer, data comes from ESP32 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,17 +60,21 @@ static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-void shoot();
+void shoot(); // shooting func
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* UART input interrupt */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	uart_flag = 1;
 	HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf));
 }
 
-
+/**
+* @brief function for controlling the motors
+* @retval None
+*/
 void command_accomplishing(void) {
 	if (uart_buf[10] == 0) {
 		shoot_flag = 1;
@@ -77,12 +82,12 @@ void command_accomplishing(void) {
 	if ((uart_buf[10] == 1) && (shoot_flag == 1)) {
 		shoot();
 	}
-	if (uart_buf[0] == 'B') {
+	if (uart_buf[0] == 'B') { // change the speed of bottom motors
 		move_motor(1, uart_buf[1], uart_buf[2] * PWM_MAX / 255);
 		move_motor(2, uart_buf[3], uart_buf[4] * PWM_MAX / 255);
 	}
 
-	if (uart_buf[5] == 'T') {
+	if (uart_buf[5] == 'T') { // change the speed of top motors
 		move_motor(3, uart_buf[6], uart_buf[7] * PWM_MAX / 255);
 		move_motor(4, uart_buf[8], uart_buf[9] * PWM_MAX / 255);
 	}
@@ -172,13 +177,15 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  init_motors();
-  HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf));
+  init_motors(); // initialization of motors structures (GPIO, timers)
+  HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf)); // enable UART interrupting for receiving 11 bytes
   while (1) {
+    /* if 11 bytes were received */
 	  if (uart_flag) {
 		  uart_flag = 0;
-		  command_accomplishing();
+		  command_accomplishing(); // execute input command
 	  }
+
 //    move_motor(1, 1, 100);
 //    HAL_Delay(2000);
 //    move_motor(2, 1, 100);
