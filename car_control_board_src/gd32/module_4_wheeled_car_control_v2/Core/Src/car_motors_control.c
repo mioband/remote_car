@@ -13,112 +13,48 @@ extern TIM_HandleTypeDef htim3;
 /* limitation of PWM signal */
 #define PWM_MAX (htim2.Init.Period * 0.40)
 
-/* structure for keeping controlling pins, ports, timer stuff */
-typedef struct {
-	uint16_t pin_dir_0;
-	GPIO_TypeDef *pin_dir_0_port;
-	uint16_t pin_dir_1;
-	GPIO_TypeDef *pin_dir_1_port;
-	TIM_HandleTypeDef *tim;
-	uint32_t tim_ch;
-} motor_pins_s;
-
 /* motors structures */
 motor_pins_s motor_1, motor_2, motor_3, motor_4;
 
 /**
-* @brief Initialization of motor 1
+* @brief Initialization of the motor
 * @retval None
 */
-static void init_motor_1(void) {
-	motor_1.pin_dir_1 = DIG_AIN_1_Pin;
-	motor_1.pin_dir_1_port = DIG_AIN_1_GPIO_Port;
-	motor_1.pin_dir_0 = DIG_AIN_2_Pin;
-	motor_1.pin_dir_0_port = DIG_AIN_2_GPIO_Port;
-	motor_1.tim = &htim2;
-	motor_1.tim_ch = TIM_CHANNEL_3;
+static void init_motor(motor_pins_s *p_motor, uint16_t dir_0_pin, GPIO_TypeDef *dir_0_prt, uint16_t dir_1_pin, GPIO_TypeDef *dir_1_prt, TIM_HandleTypeDef *p_tim, uint32_t t_channel) {
+	p_motor->pin_dir_0 = dir_0_pin;
+	p_motor->pin_dir_0_port = dir_0_prt;
+	p_motor->pin_dir_1 = dir_1_pin;
+	p_motor->pin_dir_1_port = dir_1_prt;
+	p_motor->tim = p_tim;
+	p_motor->tim_ch = t_channel;
 
-	HAL_GPIO_WritePin(motor_1.pin_dir_1_port, motor_1.pin_dir_1, 0);
-	HAL_GPIO_WritePin(motor_1.pin_dir_0_port, motor_1.pin_dir_0, 0);
+	HAL_GPIO_WritePin(p_motor->pin_dir_1_port, p_motor->pin_dir_1, 0);
+	HAL_GPIO_WritePin(p_motor->pin_dir_0_port, p_motor->pin_dir_0, 0);
 
-	__HAL_TIM_SET_COMPARE(motor_1.tim, motor_1.tim_ch, 0);
-	HAL_TIM_PWM_Start(motor_1.tim, motor_1.tim_ch);
-}
-
-/**
-* @brief Initialization of motor 2
-* @retval None
-*/
-static void init_motor_2(void) {
-	motor_2.pin_dir_1 = DIG_BIN_1_Pin;
-	motor_2.pin_dir_1_port = DIG_BIN_1_GPIO_Port;
-	motor_2.pin_dir_0 = DIG_BIN_2_Pin;
-	motor_2.pin_dir_0_port = DIG_BIN_2_GPIO_Port;
-	motor_2.tim = &htim2;
-	motor_2.tim_ch = TIM_CHANNEL_4;
-
-	HAL_GPIO_WritePin(motor_2.pin_dir_1_port, motor_2.pin_dir_1, 0);
-	HAL_GPIO_WritePin(motor_2.pin_dir_0_port, motor_2.pin_dir_0, 0);
-
-	__HAL_TIM_SET_COMPARE(motor_2.tim, motor_2.tim_ch, 0);
-	HAL_TIM_PWM_Start(motor_2.tim, motor_2.tim_ch);
-}
-
-/**
-* @brief Initialization of motor 3
-* @retval None
-*/
-static void init_motor_3(void) {
-//	motor_3.pin_dir_0 = DIG_AIN_3_Pin;
-//	motor_3.pin_dir_0_port = DIG_AIN_3_GPIO_Port;
-//	motor_3.pin_dir_1 = DIG_AIN_4_Pin;
-//	motor_3.pin_dir_1_port = DIG_AIN_4_GPIO_Port;
-	motor_3.pin_dir_1 = DIG_AIN_3_Pin;
-	motor_3.pin_dir_1_port = DIG_AIN_3_GPIO_Port;
-	motor_3.pin_dir_0 = DIG_AIN_4_Pin;
-	motor_3.pin_dir_0_port = DIG_AIN_4_GPIO_Port;
-	motor_3.tim = &htim3;
-	motor_3.tim_ch = TIM_CHANNEL_3;
-
-	HAL_GPIO_WritePin(motor_3.pin_dir_1_port, motor_3.pin_dir_1, 0);
-	HAL_GPIO_WritePin(motor_3.pin_dir_0_port, motor_3.pin_dir_0, 0);
-
-	__HAL_TIM_SET_COMPARE(motor_3.tim, motor_3.tim_ch, 0);
-	HAL_TIM_PWM_Start(motor_3.tim, motor_3.tim_ch);
-}
-
-/**
-* @brief Initialization of motor 4
-* @retval None
-*/
-static void init_motor_4(void) {
-//	motor_4.pin_dir_0 = DIG_BIN_3_Pin;
-//	motor_4.pin_dir_0_port = DIG_BIN_3_GPIO_Port;
-//	motor_4.pin_dir_1 = DIG_BIN_4_Pin;
-//	motor_4.pin_dir_1_port = DIG_BIN_4_GPIO_Port;
-	motor_4.pin_dir_1 = DIG_BIN_3_Pin;
-	motor_4.pin_dir_1_port = DIG_BIN_3_GPIO_Port;
-	motor_4.pin_dir_0 = DIG_BIN_4_Pin;
-	motor_4.pin_dir_0_port = DIG_BIN_4_GPIO_Port;
-	motor_4.tim = &htim3;
-	motor_4.tim_ch = TIM_CHANNEL_4;
-
-	HAL_GPIO_WritePin(motor_4.pin_dir_1_port, motor_4.pin_dir_1, 0);
-	HAL_GPIO_WritePin(motor_4.pin_dir_0_port, motor_4.pin_dir_0, 0);
-
-	__HAL_TIM_SET_COMPARE(motor_4.tim, motor_4.tim_ch, 0);
-	HAL_TIM_PWM_Start(motor_4.tim, motor_4.tim_ch);
+	__HAL_TIM_SET_COMPARE(p_motor->tim, p_motor->tim_ch, 0);
+	HAL_TIM_PWM_Start(p_motor->tim, p_motor->tim_ch);
 }
 
 /**
 * @brief Initialization of the all motors
 * @retval None
 */
+#define BROWN_TANK
+//#define GREEN_TANK
 void init_motors(void) {
-	init_motor_1();
-	init_motor_2();
-	init_motor_3();
-	init_motor_4();
+#if defined (BROWN_TANK)
+	init_motor(&motor_2, DIG_AIN_1_Pin, DIG_AIN_1_GPIO_Port, DIG_AIN_2_Pin, DIG_AIN_2_GPIO_Port, &htim2, TIM_CHANNEL_3);
+	init_motor(&motor_1, DIG_BIN_1_Pin, DIG_BIN_1_GPIO_Port, DIG_BIN_2_Pin, DIG_BIN_2_GPIO_Port, &htim2, TIM_CHANNEL_4);
+//	init_motor(&motor_3, DIG_AIN_3_Pin, DIG_AIN_3_GPIO_Port, DIG_AIN_4_Pin, DIG_AIN_4_GPIO_Port, &htim3, TIM_CHANNEL_3);
+//	init_motor(&motor_4, DIG_BIN_3_Pin, DIG_BIN_3_GPIO_Port, DIG_BIN_4_Pin, DIG_BIN_4_GPIO_Port, &htim3, TIM_CHANNEL_4);
+	init_motor(&motor_3, DIG_AIN_4_Pin, DIG_AIN_4_GPIO_Port, DIG_AIN_3_Pin, DIG_AIN_3_GPIO_Port, &htim3, TIM_CHANNEL_3);
+	init_motor(&motor_4, DIG_BIN_4_Pin, DIG_BIN_4_GPIO_Port, DIG_BIN_3_Pin, DIG_BIN_3_GPIO_Port, &htim3, TIM_CHANNEL_4);
+#elif defined (GREEN_TANK)
+	init_motor(&motor_4, DIG_AIN_2_Pin, DIG_AIN_2_GPIO_Port, DIG_AIN_1_Pin, DIG_AIN_1_GPIO_Port, &htim2, TIM_CHANNEL_3);
+	init_motor(&motor_2, DIG_BIN_1_Pin, DIG_BIN_1_GPIO_Port, DIG_BIN_2_Pin, DIG_BIN_2_GPIO_Port, &htim2, TIM_CHANNEL_4);
+	init_motor(&motor_3, DIG_AIN_4_Pin, DIG_AIN_4_GPIO_Port, DIG_AIN_3_Pin, DIG_AIN_3_GPIO_Port, &htim3, TIM_CHANNEL_3);
+	init_motor(&motor_1, DIG_BIN_3_Pin, DIG_BIN_3_GPIO_Port, DIG_BIN_4_Pin, DIG_BIN_4_GPIO_Port, &htim3, TIM_CHANNEL_4);
+#endif
 }
 
 /**

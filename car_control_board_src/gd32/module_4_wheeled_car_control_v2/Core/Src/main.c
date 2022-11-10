@@ -173,27 +173,37 @@ int main(void)
 //	  HAL_GPIO_WritePin(ROTATING_GPIO_Port, ROTATING_Pin, GPIO_PIN_RESET);
 //	  delay_micros(500);
 //  }
+//
+//  for (int i = 0; i < 700; ++i) {
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
+//	  delay_micros(100);
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_RESET);
+//	  delay_micros(900);
+//  }
+
+//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   init_motors(); // initialization of motors structures (GPIO, timers)
   HAL_UART_Receive_IT(&huart3, (uint8_t *) uart_buf, sizeof(uart_buf)); // enable UART interrupting for receiving 11 bytes
+
+  /*move_motor(1, 1, 100);
+  HAL_Delay(2000);
+  move_motor(2, 1, 100);
+  HAL_Delay(2000);
+  move_motor(3, 1, 100);
+  HAL_Delay(2000);
+  move_motor(4, 1, 100);
+  HAL_Delay(2000);*/
+
   while (1) {
     /* if 11 bytes were received */
 	  if (uart_flag) {
 		  uart_flag = 0;
 		  command_accomplishing(); // execute input command
 	  }
-
-//    move_motor(1, 1, 100);
-//    HAL_Delay(2000);
-//    move_motor(2, 1, 100);
-//    HAL_Delay(2000);
-//    move_motor(3, 1, 100);
-//    HAL_Delay(2000);
-//    move_motor(4, 1, 100);
-//    HAL_Delay(2000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -404,7 +414,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, DIG_AIN_2_Pin|DIG_AIN_1_Pin|DIG_BIN_1_Pin|DIG_BIN_2_Pin
-                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin, GPIO_PIN_RESET);
+                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin|GPIO_PIN_12, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ROTATING_Pin|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_RESET);
@@ -417,9 +427,9 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : DIG_AIN_2_Pin DIG_AIN_1_Pin DIG_BIN_1_Pin DIG_BIN_2_Pin
-                           DIG_AIN_4_Pin DIG_AIN_3_Pin */
+                           DIG_AIN_4_Pin DIG_AIN_3_Pin PA12 */
   GPIO_InitStruct.Pin = DIG_AIN_2_Pin|DIG_AIN_1_Pin|DIG_BIN_1_Pin|DIG_BIN_2_Pin
-                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin;
+                          |DIG_AIN_4_Pin|DIG_AIN_3_Pin|GPIO_PIN_12;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

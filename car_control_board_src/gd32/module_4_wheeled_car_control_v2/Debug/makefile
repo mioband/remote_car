@@ -60,8 +60,8 @@ all: main-build
 main-build: module_4_wheeled_car_control_v2.elf secondary-outputs
 
 # Tool invocations
-module_4_wheeled_car_control_v2.elf: $(OBJS) $(USER_OBJS) /home/igor/СПИИРАН/Платформы/Платформа\ всенаправленная\ новая/remote_car/car_control_board_src/gd32/module_4_wheeled_car_control_v2/STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "module_4_wheeled_car_control_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/igor/СПИИРАН/Платформы/Платформа всенаправленная новая/remote_car/car_control_board_src/gd32/module_4_wheeled_car_control_v2/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="module_4_wheeled_car_control_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+module_4_wheeled_car_control_v2.elf: $(OBJS) $(USER_OBJS) E:\SPIIRAS\ws_small_plarform\module_4_wheeled_car_control_v2\STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "module_4_wheeled_car_control_v2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"E:\SPIIRAS\ws_small_plarform\module_4_wheeled_car_control_v2\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="module_4_wheeled_car_control_v2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
